@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User } from '@angular/fire/auth';
-import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore'; 
+import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
+import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
@@ -10,54 +10,64 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
-  
+
   constructor(
-    private auth: Auth, 
+    private auth: Auth,
     private router: Router,
-    private firestore: Firestore 
+    private firestore: Firestore
   ) {
-    // Actualizar el observable cuando cambia el estado de autenticación
     onAuthStateChanged(this.auth, (user) => {
       this.currentUserSubject.next(user);
     });
   }
 
-  // Iniciar sesión con Firebase
   async login(email: string, password: string): Promise<boolean> {
     try {
       const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
-      
-      // Si llega aquí, el login fue exitoso
-      this.router.navigate(['/dashboard']); 
+      this.router.navigate(['/dashboard']);
       return true;
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
-      return false; // Devolvemos false si el login falla
+      return false;
     }
-  }  
+  }
 
-  // Registrar un nuevo usuario con Firebase
   async register(email: string, password: string, userData?: any): Promise<void> {
     try {
       const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
-      
-      // Si hay datos adicionales, guardarlos en Firestore
       if (userData) {
         await this.saveUserData(userCredential.user.uid, {
           email,
           ...userData,
-          createdAt: new Date()
+          createdAt: new Date(),
         });
       }
-      
       this.router.navigate(['/dashboard']);
     } catch (error) {
       console.error('Error al registrarse:', error);
-      throw error; // Importante para que el `catch` en `onRegister()` lo capture
+      throw error;
     }
-  }  
+  }
 
-  // Guardar datos del usuario en Firestore
+  async loginWithGoogle(): Promise<void> {
+    try {
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(this.auth, provider);
+
+      await this.saveUserData(userCredential.user.uid, {
+        email: userCredential.user.email,
+        displayName: userCredential.user.displayName,
+        photoURL: userCredential.user.photoURL,
+        createdAt: new Date(),
+      });
+
+      this.router.navigate(['/dashboard']);
+    } catch (error) {
+      console.error('Error al iniciar sesión con Google:', error);
+      throw error;
+    }
+  }
+
   async saveUserData(userId: string, userData: any): Promise<void> {
     try {
       const userRef = doc(this.firestore, 'users', userId);
@@ -68,24 +78,17 @@ export class AuthService {
     }
   }
 
-  // Obtener datos del usuario desde Firestore
   async getUserData(userId: string): Promise<any> {
     try {
       const userRef = doc(this.firestore, 'users', userId);
       const userSnap = await getDoc(userRef);
-      
-      if (userSnap.exists()) {
-        return userSnap.data();
-      } else {
-        return null;
-      }
+      return userSnap.exists() ? userSnap.data() : null;
     } catch (error) {
       console.error('Error al obtener datos del usuario:', error);
       throw error;
     }
   }
 
-  // Cerrar sesión con Firebase
   async logout(): Promise<void> {
     try {
       await signOut(this.auth);
@@ -95,24 +98,19 @@ export class AuthService {
     }
   }
 
-  // Verificar si el usuario está autenticado
   isAuthenticated(): boolean {
     return !!this.auth.currentUser;
   }
 
-  // Obtener el usuario actual
   getCurrentUser(): User | null {
     return this.auth.currentUser;
   }
 
-  // Observador para el estado de autenticación
   initAuthListener(): void {
     onAuthStateChanged(this.auth, (user) => {
       if (user) {
-        // El usuario está autenticado
         console.log('Usuario autenticado:', user.email);
       } else {
-        // El usuario no está autenticado
         console.log('Usuario no autenticado');
         this.router.navigate(['/login']);
       }
