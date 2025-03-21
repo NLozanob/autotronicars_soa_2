@@ -72,3 +72,42 @@ a {
 a:hover {
   color: #1a73e8;
 }
+
+/* Estilos para el contenedor de los botones */
+.buttons-container {
+  display: flex;
+  justify-content: space-between; /* Espacio entre los botones */
+  gap: 10px; /* Espacio entre los botones */
+  margin-top: 20px; /* Margen superior */
+}
+
+/* Estilos para el botón de registro */
+.btn-danger {
+  flex: 1; /* Ocupa el espacio disponible */
+  padding: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+/* Estilos para el botón de Google */
+.btn-google {
+  flex: 1; /* Ocupa el espacio disponible */
+  background-color: #db4437; /* Color de Google */
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* Espacio entre el ícono y el texto */
+  padding: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-google:hover {
+  background-color: #c23321; /* Color más oscuro al hacer hover */
+}
+
+.btn-google i {
+  font-size: 18px; /* Tamaño del ícono de Google */
+}

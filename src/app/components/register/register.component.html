@@ -15,10 +15,20 @@
         <label for="password" class="form-label">Contraseña</label>
         <input type="password" class="form-control" id="password" formControlName="password" required>
       </div>
-      <button type="submit" class="btn btn-danger w-100 my-4" [disabled]="loading">
-        {{ loading ? 'Registrando...' : 'Registrarse' }}
-      </button>
-      <p class="text-center">
+
+      <!-- Contenedor para los botones -->
+      <div class="buttons-container">
+        <button type="submit" class="btn btn-danger" [disabled]="loading">
+          <i class="fas fa-envelope"></i> {{ loading ? 'Registrando...' : 'Registrarse' }}
+        </button>
+
+        <!-- Botón de Google con ícono -->
+        <button type="button" class="btn btn-google" (click)="loginWithGoogle()">
+          <i class="fab fa-google"></i> Iniciar sesión con Google
+        </button>
+      </div>
+
+      <p class="text-center mt-3">
         ¿Ya tienes una cuenta? <a routerLink="/login" class="text-decoration-none">Inicia Sesión</a>
       </p>
       <div *ngIf="errorMessage" class="error-message text-center">
