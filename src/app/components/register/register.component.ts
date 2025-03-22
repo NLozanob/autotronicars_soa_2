@@ -92,6 +92,14 @@ export class RegisterComponent {
   async loginWithGoogle() {
     try {
       await this.authService.loginWithGoogle(); // Llama al método del servicio
+
+      // Mensaje de éxito
+      Swal.fire({
+        icon: 'success',
+        title: '¡Autenticación exitosa!',
+        text: 'Has iniciado sesión correctamente con Google.',
+      });
+
     } catch (error) {
       console.error('Error al iniciar sesión con Google:', error);
       // Muestra una alerta de error
