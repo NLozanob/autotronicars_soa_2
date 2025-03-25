@@ -1,0 +1,42 @@
+<div class="login-container"
+  style="background-image: url('/images/abstract-background.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; height: 100vh; display: flex; justify-content: center; align-items: center;">
+  <div class="card login-card shadow-lg">
+    <h2 class="card-title text-center mb-4">Registro</h2>
+    <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+      <div class="mb-3">
+        <label for="name" class="form-label">Nombre</label>
+        <input type="text" class="form-control" id="name" formControlName="name" required>
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">Correo Electrónico</label>
+        <input type="email" class="form-control" id="email" formControlName="email" required>
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Contraseña</label>
+        <input type="password" class="form-control" id="password" formControlName="password" required>
+      </div>
+
+      <!-- Contenedor para los botones -->
+      <div class="buttons-container">
+        <button type="submit" class="btn btn-danger" [disabled]="loading">
+          <i class="fas fa-envelope"></i> {{ loading ? 'Registrando...' : 'Registrarse con correo electrónico' }}
+        </button>
+      </div>
+
+      <!-- Botón de Google con ícono -->
+      <p class="text-center mt-3">O únase a nosotros con</p>
+      <div class="d-flex justify-content-center">
+        <button type="button" class="btn btn-google" (click)="loginWithGoogle()">
+          <i class="fab fa-google"></i> Registrarse con Google
+        </button>
+      </div>
+
+      <p class="text-center mt-3">
+        ¿Ya tienes una cuenta? <a routerLink="/login" class="text-decoration-none">Inicia Sesión</a>
+      </p>
+      <div *ngIf="errorMessage" class="error-message text-center">
+        {{ errorMessage }}
+      </div>
+    </form>
+  </div>
+</div>
