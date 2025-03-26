@@ -54,5 +54,19 @@ export class LoginComponent {
         console.error("Error en el login:", error);
         this.mostrarError(); // Solo se ejecuta si hay error
       });
-  }  
+  }
+  
+  async loginWithGoogle() {
+      try {
+        await this.authService.loginWithGoogle(); // Llama al método del servicio
+      } catch (error) {
+        console.error('Error al iniciar sesión con Google:', error);
+        // Muestra una alerta de error
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
+        });
+      }
+    }
 }
