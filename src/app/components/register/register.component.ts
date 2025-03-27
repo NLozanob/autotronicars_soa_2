@@ -54,6 +54,11 @@ export class RegisterComponent {
           // Redirige al usuario después de cerrar la alerta
           this.router.navigate(['/dashboard']);
         });
+
+        //Redirige al dashboard
+        setTimeout(() => {
+          this.router.navigate(['/dashboard']);
+        }, 2000);
       } catch (error: any) {
         // Manejo de errores con SweetAlert2
         let errorMessage = 'Error al registrar usuario. Inténtalo de nuevo.';
@@ -91,16 +96,21 @@ export class RegisterComponent {
   // Método para iniciar sesión con Google
   async loginWithGoogle() {
     try {
-      await this.authService.loginWithGoogle();
 
-      // Muestra mensaje de éxito y luego redirige
-      await Swal.fire({
-        icon: 'success',
-        title: '¡Autenticación exitosa!',
-        text: 'Has iniciado sesión correctamente con Google.',
-      });
+      await this.authService.loginWithGoogle(); // Llama al método del servicio
 
-      this.router.navigate(['/dashboard']);
+// Muestra el mensaje de éxito
+Swal.fire({
+  icon: 'success',
+  title: 'Autenticación exitosa!',
+  text: 'Has iniciado sesión correctamente con Google.',
+});
+
+// Después de 1.5 segundos, redirige al dashboard
+setTimeout(() => {
+  this.router.navigate(['/dashboard']); // Redirige al dashboard
+}, 1500);
+
     } catch (error) {
       console.error('Error al iniciar sesión con Google:', error);
       await Swal.fire({
