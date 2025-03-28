@@ -50,9 +50,8 @@ export class RegisterComponent {
           icon: 'success',
           title: '¡Registro exitoso!',
           text: 'Tu cuenta ha sido creada correctamente.',
-        }).then(() => {
-          // Redirige al usuario después de cerrar la alerta
-          this.router.navigate(['/dashboard']);
+          timer: 2000,
+          showConfirmButton: false
         });
 
         //Redirige al dashboard

@@ -1,7 +1,8 @@
 import Swal from 'sweetalert2';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms'; 
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -16,7 +17,7 @@ export class LoginComponent {
   email: string = '';
   password: string = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {}// Se añade Router
 
   mostrarError() {
     Swal.fire({
@@ -44,7 +45,8 @@ export class LoginComponent {
       .then(success => {
         console.log("Resultado del login:", success);
   
-        if (success) {  
+        if (success) { 
+          
           this.mostrarExito();  //Solo éxito si login es correcto
           setTimeout(() =>{
             this.router.navigate(['/dashboard']); // Redirección a la página dashboard
