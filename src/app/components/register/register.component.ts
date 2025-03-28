@@ -99,18 +99,17 @@ export class RegisterComponent {
 
       await this.authService.loginWithGoogle(); // Llama al método del servicio
 
-// Muestra el mensaje de éxito
-Swal.fire({
-  icon: 'success',
-  title: 'Autenticación exitosa!',
-  text: 'Has iniciado sesión correctamente con Google.',
-});
+      // Mensaje de éxito
+      Swal.fire({
+        icon: 'success',
+        title: '¡Autenticación exitosa!',
+        text: 'Has iniciado sesión correctamente con Google.',
+      });
 
-// Después de 1.5 segundos, redirige al dashboard
-setTimeout(() => {
-  this.router.navigate(['/dashboard']); // Redirige al dashboard
-}, 1500);
-
+          // Después de 1.5 segundos, redirige al dashboard
+        setTimeout(() => {
+        this.router.navigate(['/dashboard']); // Redirige al dashboard
+       }, 1500);
     } catch (error) {
       console.error('Error al iniciar sesión con Google:', error);
       await Swal.fire({
