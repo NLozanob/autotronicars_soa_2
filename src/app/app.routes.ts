@@ -7,6 +7,7 @@ import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component:  WelcomeComponent },
+  //{ path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent},
   { path: '**', redirectTo: '' }, // Redirige rutas desconocidas a Welcome
