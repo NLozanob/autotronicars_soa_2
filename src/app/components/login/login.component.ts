@@ -45,9 +45,9 @@ export class LoginComponent {
       .then(success => {
         console.log("Resultado del login:", success);
   
-        if (success) {  
-
-          this.mostrarExito();  //Si login es correcto
+        if (success) { 
+          
+          this.mostrarExito();  //Solo éxito si login es correcto
           setTimeout(() =>{
             this.router.navigate(['/dashboard']); // Redirección a la página dashboard
           }, 1500);
@@ -64,6 +64,7 @@ export class LoginComponent {
   async loginWithGoogle() {
       try {
         await this.authService.loginWithGoogle(); // Llama al método del servicio
+        this.router.navigate(['/dashboard']); //Redirige si el login de Google es exitoso
       } catch (error) {
         console.error('Error al iniciar sesión con Google:', error);
         // Muestra una alerta de error
