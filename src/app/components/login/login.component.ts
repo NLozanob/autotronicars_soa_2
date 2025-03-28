@@ -16,7 +16,11 @@ export class LoginComponent {
   email: string = '';
   password: string = '';
 
+<<<<<<< Updated upstream
   constructor(private authService: AuthService) {}
+=======
+  constructor(private authService: AuthService, private router: Router) {}// Se añade Router
+>>>>>>> Stashed changes
 
   mostrarError() {
     Swal.fire({
@@ -45,7 +49,14 @@ export class LoginComponent {
         console.log("Resultado del login:", success);
   
         if (success) {  
+<<<<<<< Updated upstream
           this.mostrarExito();  //Solo éxito si login es correcto
+=======
+          this.mostrarExito();  //Si login es correcto
+          setTimeout(() =>{
+            this.router.navigate(['/dashboard']); // Redirección a la página dashboard
+          }, 1500);
+>>>>>>> Stashed changes
         } else {
           this.mostrarError();   //Solo error si login falla
         }

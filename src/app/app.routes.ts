@@ -7,4 +7,9 @@ export const routes: Routes = [
   { path: '', component:  WelcomeComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent},
+<<<<<<< Updated upstream
+=======
+  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: '**', redirectTo: '' }, // Redirige rutas desconocidas a Welcome
+>>>>>>> Stashed changes
 ];
