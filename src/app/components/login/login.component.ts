@@ -2,6 +2,7 @@ import Swal from 'sweetalert2';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms'; 
 import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -16,7 +17,7 @@ export class LoginComponent {
   email: string = '';
   password: string = '';
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}// Se añade Router
 
   mostrarError() {
     Swal.fire({
@@ -44,8 +45,12 @@ export class LoginComponent {
       .then(success => {
         console.log("Resultado del login:", success);
   
-        if (success) {  
+        if (success) { 
+          
           this.mostrarExito();  //Solo éxito si login es correcto
+          setTimeout(() =>{
+            this.router.navigate(['/dashboard']); // Redirección a la página dashboard
+          }, 1500);
         } else {
           this.mostrarError();   //Solo error si login falla
         }
@@ -59,6 +64,7 @@ export class LoginComponent {
   async loginWithGoogle() {
       try {
         await this.authService.loginWithGoogle(); // Llama al método del servicio
+        this.router.navigate(['/dashboard']); //Redirige si el login de Google es exitoso
       } catch (error) {
         console.error('Error al iniciar sesión con Google:', error);
         // Muestra una alerta de error
