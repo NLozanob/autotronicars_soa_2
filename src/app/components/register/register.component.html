@@ -19,10 +19,13 @@
       <!-- Contenedor para los botones -->
       <div class="buttons-container">
         <button type="submit" class="btn btn-danger" [disabled]="loading">
-          <i class="fas fa-envelope"></i> {{ loading ? 'Registrando...' : 'Registrarse' }}
+          <i class="fas fa-envelope"></i> {{ loading ? 'Registrando...' : 'Registrarse con correo electrónico' }}
         </button>
+      </div>
 
-        <!-- Botón de Google con ícono -->
+      <!-- Botón de Google con ícono -->
+      <p class="text-center mt-3">O únase a nosotros con</p>
+      <div class="d-flex justify-content-center">
         <button type="button" class="btn btn-google" (click)="loginWithGoogle()">
           <i class="fab fa-google"></i> Registrarse con Google
         </button>
