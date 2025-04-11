@@ -4,12 +4,13 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import Swal from 'sweetalert2'; // Importa SweetAlert2
+import Swal from 'sweetalert2';
+import { AuthGithubComponent } from '../auth-github/auth-github.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, AuthGithubComponent],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
 })
@@ -37,15 +38,12 @@ export class RegisterComponent {
 
       try {
         const { email, password, name } = this.registerForm.value;
-
-        // Registro con datos adicionales para Firestore
         await this.authService.register(email, password, {
           displayName: name,
           role: 'user',
           photoURL: '',
         });
 
-        // Muestra una alerta de éxito
         Swal.fire({
           icon: 'success',
           title: '¡Registro exitoso!',
@@ -54,36 +52,27 @@ export class RegisterComponent {
           showConfirmButton: false
         });
 
-        //Redirige al dashboard
         setTimeout(() => {
           this.router.navigate(['/dashboard']);
         }, 2000);
       } catch (error: any) {
-        // Manejo de errores con SweetAlert2
         let errorMessage = 'Error al registrar usuario. Inténtalo de nuevo.';
-
         if (error.code === 'auth/email-already-in-use') {
           errorMessage = 'El correo electrónico ya está en uso.';
         } else if (error.code === 'auth/weak-password') {
           errorMessage = 'La contraseña debe tener al menos 6 caracteres.';
         }
 
-        // Muestra una alerta de error
         Swal.fire({
           icon: 'error',
           title: 'Error',
           text: errorMessage,
         });
-
-        console.error('Error detallado:', error);
       } finally {
         this.loading = false;
       }
     } else {
-      // Marca todos los campos como tocados para mostrar errores de validación
       this.registerForm.markAllAsTouched();
-
-      // Muestra una alerta si el formulario es inválido
       Swal.fire({
         icon: 'error',
         title: 'Formulario inválido',
@@ -92,30 +81,37 @@ export class RegisterComponent {
     }
   }
 
-  // Método para iniciar sesión con Google
   async loginWithGoogle() {
     try {
-
-      await this.authService.loginWithGoogle(); // Llama al método del servicio
-
-      // Mensaje de éxito
+      await this.authService.loginWithGoogle();
       Swal.fire({
         icon: 'success',
         title: '¡Autenticación exitosa!',
         text: 'Has iniciado sesión correctamente con Google.',
       });
-
-          // Después de 1.5 segundos, redirige al dashboard
-        setTimeout(() => {
-        this.router.navigate(['/dashboard']); // Redirige al dashboard
-       }, 1500);
+      setTimeout(() => {
+        this.router.navigate(['/dashboard']);
+      }, 1500);
     } catch (error) {
       console.error('Error al iniciar sesión con Google:', error);
-      await Swal.fire({
+      Swal.fire({
         icon: 'error',
         title: 'Error',
         text: 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
       });
     }
+  }
+
+  onAuthSuccess() {
+    Swal.fire({
+      position: 'top-end',
+      icon: 'success',
+      title: 'Autenticación con GitHub exitosa!',
+      showConfirmButton: false,
+      timer: 1500
+    });
+    setTimeout(() => {
+      this.router.navigate(['/dashboard']);
+    }, 1500);
   }
 }
