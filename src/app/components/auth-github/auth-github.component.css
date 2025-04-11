@@ -1,0 +1,11 @@
+.github-auth-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #24292e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}

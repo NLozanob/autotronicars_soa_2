@@ -1,8 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
+import { 
+  Auth, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged, 
+  User, 
+  GoogleAuthProvider, 
+  GithubAuthProvider,
+  signInWithPopup 
+} from '@angular/fire/auth';
 import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Injectable({
   providedIn: 'root',
@@ -16,58 +27,99 @@ export class AuthService {
     private router: Router,
     private firestore: Firestore
   ) {
-    onAuthStateChanged(this.auth, (user) => {
-      this.currentUserSubject.next(user);
-    });
+    this.initAuthListener();
   }
 
+  // ==================== Métodos Básicos ====================
   async login(email: string, password: string): Promise<boolean> {
     try {
       const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
-      this.router.navigate(['/dashboard']);
+      await this.handleSuccessfulAuth(userCredential.user);
       return true;
     } catch (error) {
-      console.error('Error al iniciar sesión:', error);
+      this.handleAuthError(error);
       return false;
     }
   }
 
-  async register(email: string, password: string, userData?: any): Promise<void> {
+  async register(email: string, password: string, additionalData?: any): Promise<void> {
     try {
       const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
-      if (userData) {
-        await this.saveUserData(userCredential.user.uid, {
-          email,
-          ...userData,
-          createdAt: new Date(),
-        });
-      }
-      this.router.navigate(['/dashboard']);
+      await this.saveUserData(userCredential.user.uid, {
+        email,
+        ...additionalData,
+        createdAt: new Date(),
+      });
+      await this.handleSuccessfulAuth(userCredential.user);
     } catch (error) {
-      console.error('Error al registrarse:', error);
+      this.handleAuthError(error);
       throw error;
     }
   }
 
+  async logout(): Promise<void> {
+    try {
+      await signOut(this.auth);
+      this.router.navigate(['/login']);
+      Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        title: 'Sesión cerrada correctamente',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo cerrar la sesión',
+      });
+    }
+  }
+
+  // ==================== Autenticación Social ====================
   async loginWithGoogle(): Promise<void> {
     try {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(this.auth, provider);
-
+      
       await this.saveUserData(userCredential.user.uid, {
         email: userCredential.user.email,
         displayName: userCredential.user.displayName,
         photoURL: userCredential.user.photoURL,
         createdAt: new Date(),
+        role: 'user'
       });
 
-      this.router.navigate(['/dashboard']);
+      await this.handleSuccessfulAuth(userCredential.user);
     } catch (error) {
-      console.error('Error al iniciar sesión con Google:', error);
+      this.handleAuthError(error);
       throw error;
     }
   }
 
+  async loginWithGithub(): Promise<void> {
+    try {
+      const provider = new GithubAuthProvider();
+      const userCredential = await signInWithPopup(this.auth, provider);
+      
+      await this.saveUserData(userCredential.user.uid, {
+        email: userCredential.user.email,
+        displayName: userCredential.user.displayName || 'GitHub User',
+        photoURL: userCredential.user.photoURL || '',
+        createdAt: new Date(),
+        role: 'user'
+      });
+
+      await this.handleSuccessfulAuth(userCredential.user);
+    } catch (error) {
+      this.handleAuthError(error);
+      throw error;
+    }
+  }
+
+  // ==================== Firestore Operations ====================
   async saveUserData(userId: string, userData: any): Promise<void> {
     try {
       const userRef = doc(this.firestore, 'users', userId);
@@ -89,13 +141,58 @@ export class AuthService {
     }
   }
 
-  async logout(): Promise<void> {
-    try {
-      await signOut(this.auth);
-      this.router.navigate(['/']);
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
+  // ==================== Helpers ====================
+  private async handleSuccessfulAuth(user: User): Promise<void> {
+    this.currentUserSubject.next(user);
+    Swal.fire({
+      position: 'top-end',
+      icon: 'success',
+      title: '¡Autenticación exitosa!',
+      showConfirmButton: false,
+      timer: 1500
+    });
+    this.router.navigate(['/dashboard']);
+  }
+
+  private handleAuthError(error: any): void {
+    console.error('Error de autenticación:', error);
+    let errorMessage = 'Ocurrió un error durante la autenticación';
+
+    if (error.code) {
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'Usuario no encontrado';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Contraseña incorrecta';
+          break;
+        case 'auth/email-already-in-use':
+          errorMessage = 'El correo ya está registrado';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'La contraseña debe tener al menos 6 caracteres';
+          break;
+        case 'auth/popup-closed-by-user':
+          errorMessage = 'El popup de autenticación fue cerrado';
+          break;
+      }
     }
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: errorMessage,
+    });
+  }
+
+  // ==================== State Management ====================
+  initAuthListener(): void {
+    onAuthStateChanged(this.auth, (user) => {
+      this.currentUserSubject.next(user);
+      if (!user) {
+        this.router.navigate(['/login']);
+      }
+    });
   }
 
   isAuthenticated(): boolean {
@@ -106,14 +203,7 @@ export class AuthService {
     return this.auth.currentUser;
   }
 
-  initAuthListener(): void {
-    onAuthStateChanged(this.auth, (user) => {
-      if (user) {
-        console.log('Usuario autenticado:', user.email);
-      } else {
-        console.log('Usuario no autenticado');
-        this.router.navigate(['/login']);
-      }
-    });
+  getCurrentUserId(): string | null {
+    return this.auth.currentUser?.uid || null;
   }
 }
