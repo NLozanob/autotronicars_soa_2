@@ -1,22 +1,13 @@
-/* Fuente y box-sizing */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
 /* Fondo general */
-body {
-  background-image: url('/images/abstract-background.jpg');
-  background-size: cover;
-  background-position: center;
+.login-container {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
-  font-size: 16px;
+  background-image: url('/images/abstract-background.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 /* Tarjeta principal */
@@ -44,11 +35,10 @@ body {
   margin-bottom: 1.25rem;
 }
 
-label {
+.form-group label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  font-size: 1rem;
   color: #555;
 }
 
@@ -58,7 +48,6 @@ label {
   border-radius: 10px;
   border: 1px solid #ccc;
   background: #f9f9f9;
-  font-size: 1rem;
   transition: border 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -78,7 +67,6 @@ label {
   border-radius: 10px;
   border: none;
   font-weight: 600;
-  font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
   margin-top: 0.5rem;
@@ -116,14 +104,18 @@ label {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.btn-icon svg {
-  width: 22px;
-  height: 22px;
+.btn-icon:nth-child(1) {
+  color: #DB4437;
 }
 
+.btn-icon:nth-child(2) {
+  color: #24292e;
+}
+
+/* Enlaces */
 .links {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   margin-top: 1rem;
   flex-wrap: wrap;
   gap: 10px;
@@ -144,18 +136,9 @@ label {
 }
 
 /* Responsive */
-@media (max-height: 700px) {
+@media (max-width: 576px) {
   .login-card {
     padding: 2rem;
-  }
-
-  .form-group {
-    margin-bottom: 0.9rem;
-  }
-
-  .card-title {
-    font-size: 1.4rem;
-    margin-bottom: 1rem;
   }
 
   .btn-icon {
@@ -163,4 +146,41 @@ label {
     height: 44px;
     font-size: 1.2rem;
   }
+}
+
+/* Íconos sociales mejorados */
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 1.5rem 0;
+}
+
+.btn-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  padding: 0;
+}
+
+.btn-icon:hover {
+  background-color: #f5f5f5;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Colores específicos */
+.btn-icon.google {
+  color: #DB4437;
+}
+
+.btn-icon.github {
+  color: #24292e;
 }

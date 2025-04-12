@@ -1,15 +1,15 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { 
   Auth, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut, 
-  onAuthStateChanged, 
   User, 
   GoogleAuthProvider, 
   GithubAuthProvider,
-  signInWithPopup 
+  signInWithPopup,
+  UserCredential
 } from '@angular/fire/auth';
 import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -19,14 +19,14 @@ import Swal from 'sweetalert2';
   providedIn: 'root',
 })
 export class AuthService {
+  private auth = inject(Auth);
+  private firestore = inject(Firestore);
+  private router = inject(Router);
+  
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
 
-  constructor(
-    private auth: Auth,
-    private router: Router,
-    private firestore: Firestore
-  ) {
+  constructor() {
     this.initAuthListener();
   }
 
@@ -83,16 +83,7 @@ export class AuthService {
     try {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(this.auth, provider);
-      
-      await this.saveUserData(userCredential.user.uid, {
-        email: userCredential.user.email,
-        displayName: userCredential.user.displayName,
-        photoURL: userCredential.user.photoURL,
-        createdAt: new Date(),
-        role: 'user'
-      });
-
-      await this.handleSuccessfulAuth(userCredential.user);
+      await this.handleSocialLogin(userCredential, 'google');
     } catch (error) {
       this.handleAuthError(error);
       throw error;
@@ -102,24 +93,37 @@ export class AuthService {
   async loginWithGithub(): Promise<void> {
     try {
       const provider = new GithubAuthProvider();
+      provider.addScope('user:email'); // Solicitar acceso al email
       const userCredential = await signInWithPopup(this.auth, provider);
-      
-      await this.saveUserData(userCredential.user.uid, {
-        email: userCredential.user.email,
-        displayName: userCredential.user.displayName || 'GitHub User',
-        photoURL: userCredential.user.photoURL || '',
-        createdAt: new Date(),
-        role: 'user'
-      });
-
-      await this.handleSuccessfulAuth(userCredential.user);
+      await this.handleSocialLogin(userCredential, 'github');
     } catch (error) {
       this.handleAuthError(error);
       throw error;
     }
   }
 
-  // ==================== Firestore Operations ====================
+  private async handleSocialLogin(userCredential: UserCredential, provider: string): Promise<void> {
+    const user = userCredential.user;
+    let email = user.email;
+
+    // Obtener email para GitHub si no está disponible
+    if (provider === 'github' && !email) {
+      email = await this.getGitHubEmail(user);
+    }
+
+    await this.saveUserData(user.uid, {
+      email: email || `${user.uid}@${provider}-user.com`,
+      displayName: user.displayName || `${provider} User`,
+      photoURL: user.photoURL || this.getDefaultProviderAvatar(user.uid, provider),
+      provider,
+      createdAt: new Date(),
+      role: 'user'
+    });
+
+    await this.handleSuccessfulAuth(user);
+  }
+
+  // ==================== Operaciones con Firestore ====================
   async saveUserData(userId: string, userData: any): Promise<void> {
     try {
       const userRef = doc(this.firestore, 'users', userId);
@@ -142,6 +146,26 @@ export class AuthService {
   }
 
   // ==================== Helpers ====================
+  private async getGitHubEmail(user: User): Promise<string> {
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('https://api.github.com/user/emails', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const emails = await response.json();
+      const primaryEmail = emails.find((e: any) => e.primary);
+      return primaryEmail?.email || '';
+    } catch {
+      return '';
+    }
+  }
+
+  private getDefaultProviderAvatar(uid: string, provider: string): string {
+    return provider === 'github' 
+      ? `https://avatars.githubusercontent.com/u/${uid}?v=4`
+      : `https://ui-avatars.com/api/?name=${uid}&background=random`;
+  }
+
   private async handleSuccessfulAuth(user: User): Promise<void> {
     this.currentUserSubject.next(user);
     Swal.fire({
@@ -175,6 +199,9 @@ export class AuthService {
         case 'auth/popup-closed-by-user':
           errorMessage = 'El popup de autenticación fue cerrado';
           break;
+        case 'auth/account-exists-with-different-credential':
+          errorMessage = 'Ya existe una cuenta con este email usando otro proveedor';
+          break;
       }
     }
 
@@ -185,9 +212,9 @@ export class AuthService {
     });
   }
 
-  // ==================== State Management ====================
-  initAuthListener(): void {
-    onAuthStateChanged(this.auth, (user) => {
+  // ==================== Gestión de Estado ====================
+  private initAuthListener(): void {
+    this.auth.onAuthStateChanged((user) => {
       this.currentUserSubject.next(user);
       if (!user) {
         this.router.navigate(['/login']);
