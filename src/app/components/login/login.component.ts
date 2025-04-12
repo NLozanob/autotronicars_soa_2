@@ -19,6 +19,16 @@ export class LoginComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
+  // Limpiar inputs al inicializar el componente
+  ngOnInit() {
+    this.clearInputs();
+  }
+
+  clearInputs() {
+    this.email = '';
+    this.password = '';
+  }
+
   mostrarError() {
     Swal.fire({
       icon: 'error',
@@ -68,29 +78,6 @@ export class LoginComponent {
         icon: 'error',
         title: 'Error',
         text: 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
-      });
-    }
-  }
-
-  async loginWithGithub() {
-    try {
-      await this.authService.loginWithGithub();
-      Swal.fire({
-        position: 'top-end',
-        icon: 'success',
-        title: 'Autenticación con GitHub exitosa!',
-        showConfirmButton: false,
-        timer: 1500
-      });
-      setTimeout(() => {
-        this.router.navigate(['/dashboard']);
-      }, 1500);
-    } catch (error) {
-      console.error('Error al iniciar sesión con GitHub:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudo autenticar con GitHub. Inténtalo de nuevo.',
       });
     }
   }
