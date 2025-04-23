@@ -6,7 +6,6 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component'; 
 import { AuthGuard } from './guards/auth.guard';
 
-
 export const routes: Routes = [
   { path: '', component:  WelcomeComponent },
   { path: 'register', component: RegisterComponent },
