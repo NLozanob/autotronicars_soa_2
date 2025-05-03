@@ -1,3 +1,4 @@
+//===auth.service===
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { 
@@ -14,6 +15,7 @@ import {
 import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
 import Swal from 'sweetalert2';
+import { FacebookAuthProvider } from '@angular/fire/auth'; // Asegúrate de tener esta importación
 
 @Injectable({
   providedIn: 'root',
@@ -121,6 +123,45 @@ export class AuthService {
     });
 
     await this.handleSuccessfulAuth(user);
+  }
+
+  // =====================Facebook=================================================
+  async loginWithFacebook(): Promise<void> {
+    try {
+      const provider = new FacebookAuthProvider();
+      provider.addScope('email');
+      provider.addScope('public_profile');
+      
+      // Configuración adicional para manejar mejor los popups
+      const userCredential = await signInWithPopup(this.auth, provider)
+        .catch(async (error) => {
+          // Manejo especial para errores de cuentas existentes
+          if (error.code === 'auth/account-exists-with-different-credential') {
+            await this.handleAccountExistsError(error);
+            return;
+          }
+          throw error;
+        });
+  
+      if (userCredential) {
+        await this.handleSocialLogin(userCredential, 'facebook');
+      }
+    } catch (error) {
+      console.error('Detalles completos del error:', error);
+      this.handleAuthError(error);
+      throw error;
+    }
+  }
+  
+  private async handleAccountExistsError(error: any): Promise<void> {
+    const email = error.customData?.email;
+    if (email) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Cuenta existente',
+        text: `Ya existe una cuenta con el email ${email}. Por favor inicia sesión con el método original.`,
+      });
+    }
   }
 
   // ==================== Operaciones con Firestore ====================

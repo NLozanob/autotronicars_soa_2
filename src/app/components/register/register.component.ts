@@ -5,11 +5,12 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
 import { AuthGithubComponent } from '../auth-github/auth-github.component';
+import { AuthFacebookComponent } from '../auth-facebook/auth-facebook.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, AuthGithubComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, AuthGithubComponent, AuthFacebookComponent],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
@@ -120,14 +121,42 @@ export class RegisterComponent implements OnInit {
     }
   }
 
-  onAuthSuccess() {
+  onAuthSuccess(provider: string) {
+    let title = '';
+    if (provider === 'github') {
+      title = 'Autenticación con GitHub exitosa!';
+    } else if (provider === 'facebook') {
+      title = 'Autenticación con Facebook exitosa!';
+    }
+  
     Swal.fire({
       position: 'top-end',
       icon: 'success',
-      title: 'Autenticación con GitHub exitosa!',
+      title: title,
       showConfirmButton: false,
       timer: 1500
     });
     this.router.navigate(['/dashboard']);
+  }
+
+  async loginWithFacebook() {
+    try {
+      await this.authService.loginWithFacebook(); // Método del AuthService
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Sesión iniciada con Facebook!',
+        showConfirmButton: false,
+        timer: 1500
+      });
+      this.router.navigate(['/dashboard']);
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo iniciar sesión con Facebook.',
+        confirmButtonColor: '#d33'
+      });
+    }
   }
 }

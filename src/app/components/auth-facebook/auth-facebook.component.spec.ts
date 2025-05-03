@@ -9,8 +9,7 @@ describe('AuthFacebookComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AuthFacebookComponent]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AuthFacebookComponent);
     component = fixture.componentInstance;

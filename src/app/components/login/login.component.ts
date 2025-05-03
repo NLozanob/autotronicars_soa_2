@@ -5,13 +5,14 @@ import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { AuthGithubComponent } from '../auth-github/auth-github.component';
+import { AuthFacebookComponent } from '../auth-facebook/auth-facebook.component';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
   standalone: true,
-  imports: [FormsModule, RouterLink, AuthGithubComponent]
+  imports: [FormsModule, RouterLink, AuthGithubComponent, AuthFacebookComponent]
 })
 export class LoginComponent {
   email: string = '';

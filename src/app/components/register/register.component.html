@@ -58,7 +58,8 @@
         </svg>
       </button>
 
-      <app-auth-github (authSuccess)="onAuthSuccess()"></app-auth-github>
+      <app-auth-github (authSuccess)="onAuthSuccess('github')"></app-auth-github>
+      <app-auth-facebook (authSuccess)="onAuthSuccess('facebook')"></app-auth-facebook>
     </div>
 
     <div class="links">
