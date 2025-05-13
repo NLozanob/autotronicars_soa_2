@@ -17,7 +17,7 @@
 
 .facebook-btn:hover {
   transform: scale(1.1);
-  box-shadow: 0 5px 15px rgba(66, 103, 178, 0.3); /* sombra azul */
+  box-shadow: 0 5px 15px rgba(61, 99, 173, 0.3); /* sombra azul */
   border-color: #29487d;
 }
 
