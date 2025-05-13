@@ -4,20 +4,31 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { AuthGithubComponent } from '../auth-github/auth-github.component';
+import { AuthFacebookComponent } from '../auth-facebook/auth-facebook.component';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
   standalone: true,
-  imports: [FormsModule, RouterLink]
+  imports: [FormsModule, RouterLink, AuthGithubComponent, AuthFacebookComponent]
 })
-
 export class LoginComponent {
   email: string = '';
   password: string = '';
 
-  constructor(private authService: AuthService, private router: Router) {}// Se añade Router
+  constructor(private authService: AuthService, private router: Router) {}
+
+  // Limpiar inputs al inicializar el componente
+  ngOnInit() {
+    this.clearInputs();
+  }
+
+  clearInputs() {
+    this.email = '';
+    this.password = '';
+  }
 
   mostrarError() {
     Swal.fire({
@@ -43,36 +54,39 @@ export class LoginComponent {
   
     this.authService.login(this.email, this.password)
       .then(success => {
-        console.log("Resultado del login:", success);
-  
         if (success) { 
-          
-          this.mostrarExito();  //Solo éxito si login es correcto
-          setTimeout(() =>{
-            this.router.navigate(['/dashboard']); // Redirección a la página dashboard
+          this.mostrarExito();
+          setTimeout(() => {
+            this.router.navigate(['/dashboard']);
           }, 1500);
         } else {
-          this.mostrarError();   //Solo error si login falla
+          this.mostrarError();
         }
       })
       .catch(error => {
         console.error("Error en el login:", error);
-        this.mostrarError(); // Solo se ejecuta si hay error
+        this.mostrarError();
       });
   }
   
   async loginWithGoogle() {
-      try {
-        await this.authService.loginWithGoogle(); // Llama al método del servicio
-        this.router.navigate(['/dashboard']); //Redirige si el login de Google es exitoso
-      } catch (error) {
-        console.error('Error al iniciar sesión con Google:', error);
-        // Muestra una alerta de error
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
-        });
-      }
+    try {
+      await this.authService.loginWithGoogle();
+      this.router.navigate(['/dashboard']);
+    } catch (error) {
+      console.error('Error al iniciar sesión con Google:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
+      });
     }
+  }
+
+  onAuthSuccess() {
+    this.mostrarExito();
+    setTimeout(() => {
+      this.router.navigate(['/dashboard']);
+    }, 1500);
+  }
 }
