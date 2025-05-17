@@ -1,36 +1,44 @@
 import { Component, inject } from '@angular/core';
 import { VehicleService } from '../../services/vehicle.service';
-import { AsyncPipe } from '@angular/common';
+import { CommonModule } from '@angular/common'; // Quitamos AsyncPipe
+import { tap } from 'rxjs/operators';
 
 @Component({
   standalone: true,
-  imports: [AsyncPipe], // Añadir AsyncPipe para usar en el template
-  template: `
-    <div class="dashboard">
-      <!-- Usar variable del componente en lugar de llamar al servicio directamente -->
-      <h2>Total de Vehículos: {{ (vehicles$ | async)?.length ?? 0 }}</h2>
-    </div>
-  `,
-  styles: [
-    `
-      .dashboard {
-        padding: 1rem;
-        background: #f8f9fa;
-        border-radius: 0.5rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      }
-      
-      h2 {
-        color: #333;
-        font-size: 1.25rem;
-        margin: 0;
-      }
-    `
-  ]
+  imports: [CommonModule], // Solo CommonModule
+  templateUrl: './dashboard.component.html',
+  styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent {
   protected vehicleService = inject(VehicleService);
   
-  // Mejor práctica: Almacenar el observable en una propiedad
-  vehicles$ = this.vehicleService.getAllVehicles();
+  stats = {
+    totalVehicles: 0,
+    activeMaintenance: 0,
+    recentClients: 0,
+    vehiclesChange: 8,
+    maintenanceChange: 3,
+    clientsChange: 15
+  };
+
+  vehicles: any[] = [];
+
+  // Mantenemos la subscripción directa en el componente
+  constructor() {
+    this.vehicleService.getAllVehicles().pipe(
+      tap(vehicles => {
+        this.stats.totalVehicles = vehicles.length;
+        this.vehicles = vehicles.slice(-5);
+      })
+    ).subscribe();
+  }
+
+  getCurrentDate() {
+    return new Date().toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
 }

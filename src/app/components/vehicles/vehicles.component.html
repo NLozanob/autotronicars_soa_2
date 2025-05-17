@@ -97,7 +97,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (vehicle of vehicles$ | async; track vehicle.id) {
+        @for (vehicle of vehicles$ | async; track vehicle?.id) {
           <tr>
             <td>{{ vehicle.plate }}</td>
             <td>{{ vehicle.brand }}</td>
@@ -107,12 +107,18 @@
             <td>{{ vehicle.owner }}</td>
             <td>
               <button class="btn btn-sm btn-outline-primary me-2" 
-                      (click)="openModal(vehicle)">
+                      (click)="openModal(vehicle)"
+                      [disabled]="isDeleting">
                 <i class="bi bi-pencil"></i>
               </button>
               <button class="btn btn-sm btn-outline-danger" 
-                      (click)="deleteVehicle(vehicle.id!)">
-                <i class="bi bi-trash"></i>
+                      (click)="deleteVehicle(vehicle.id!)"
+                      [disabled]="isDeleting === vehicle.id">
+                @if (isDeleting === vehicle.id) {
+                  <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                } @else {
+                  <i class="bi bi-trash"></i>
+                }
               </button>
             </td>
           </tr>

@@ -1,85 +1,264 @@
-/* Sidebar */
-.modern-sidebar {
-  background: linear-gradient(180deg, #e74c3c 0%, #c0392b 100%);
-  color: #fff;
-  width: 250px;
-  transition: width 0.3s ease;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-  border-right: none;
+.dashboard-container {
+  padding: 2rem;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
 }
 
-.modern-sidebar .nav-item {
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  
+  /* Filtros con prefijos */
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dashboard-title {
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 1.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   margin-bottom: 0.5rem;
 }
 
-.modern-sidebar .nav-link {
-  color: #fff;
+.dashboard-title i {
+  font-size: 1.5em;
+  color: #3b82f6;
+}
+
+.dashboard-subtitle {
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.current-date {
+  color: #64748b;
+  font-weight: 500;
   padding: 0.75rem 1.25rem;
-  border-radius: 0.375rem;
-  transition: background 0.2s ease, transform 0.2s ease;
+  background: #f1f5f9;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.modern-sidebar .nav-link:hover,
-.modern-sidebar .nav-link.active {
-  background-color: rgba(255, 255, 255, 0.15);
-  transform: translateX(5px);
+.current-date i {
+  font-size: 1.1em;
 }
 
-.modern-sidebar .sidebar-heading {
-  padding: 1rem 1.25rem 0.5rem;
-  text-transform: uppercase;
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.stat-card {
+  padding: 2rem;
+  border-radius: 16px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -20%;
+  width: 150px;
+  height: 150px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+}
+
+.bg-red {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.bg-blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.bg-green {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.stat-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
   font-size: 0.75rem;
-  font-weight: bold;
-  color: #f8d7da;
-  letter-spacing: 0.05em;
-}
-
-.modern-sidebar .collapse-inner {
-  background-color: #fff;
-  border-radius: 0.375rem;
-  margin: 0.5rem 0;
-  padding: 0.75rem;
-  color: #333;
-}
-
-.modern-sidebar .collapse-inner .collapse-item {
-  color: #c0392b;
-  font-weight: 500;
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  transition: background-color 0.2s;
-}
-
-.modern-sidebar .collapse-inner .collapse-item:hover {
-  background-color: rgba(231, 76, 60, 0.1);
-  color: #e74c3c;
-}
-
-/* Sidebar brand */
-.sidebar-brand {
-  height: 4.5rem;
-  font-size: 1.1rem;
   font-weight: 600;
-  text-transform: uppercase;
-  color: #fff !important;
-  background-color: rgba(0, 0, 0, 0.1);
 }
 
-.sidebar-brand-icon {
-  font-size: 1.5rem;
-  color: #fff;
+.stat-badge.success {
+  background: rgba(34, 197, 94, 0.15);
+  color: #16a34a;
 }
 
-/* Sidebar toggler button */
-.sidebar .nav-item.text-center button {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  transition: background 0.3s ease;
+.stat-badge.warning {
+  background: rgba(234, 179, 8, 0.15);
+  color: #ca8a04;
 }
 
-.sidebar .nav-item.text-center button:hover {
-  background-color: rgba(255, 255, 255, 0.25);
+.stat-badge.danger {
+  background: rgba(220, 38, 38, 0.15);
+  color: #dc2626;
+}
+
+.stat-value {
+  font-size: 2.75rem;
+  font-weight: 700;
+  letter-spacing: -1px;
+  margin-bottom: 0.5rem;
+}
+
+.stat-trend {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.recent-vehicles {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.view-all {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.view-all:hover {
+  background: #f1f5f9;
+}
+
+.vehicle-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.vehicle-item {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem;
+  background: white;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.vehicle-item:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.vehicle-plate {
+  background: #3b82f6;
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  margin-right: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.vehicle-info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.vehicle-model {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.vehicle-details {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.vehicle-status {
+  color: #22c55e;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.vehicle-status i {
+  font-size: 0.6em;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .stat-value {
+    font-size: 2rem;
+  }
+  
+  .vehicle-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .vehicle-plate {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stat-card {
+  animation: fadeIn 0.6s ease forwards;
 }
