@@ -42,17 +42,20 @@ export class VehicleService {
 
   // Actualizar con validación mejorada
   async updateVehicle(id: string, data: Partial<Vehicle>): Promise<void> {
-    if (!id) throw new Error('ID de vehículo inválido');
+  if (!id) throw new Error('ID de vehículo inválido');
 
-    try {
-      await updateDoc(doc(this.firestore, 'vehicles', id), {
+  try {
+    await updateDoc(
+      doc(this.firestore, 'vehicles', id),  // <-- Corrección aquí
+      {
         ...this.sanitizeUpdateData(data),
         updatedAt: Timestamp.now()
-      });
-    } catch (error) {
-      throw this.handleFirestoreError(error, 'Error updating vehicle');
-    }
+      }
+    );
+  } catch (error) {
+    throw this.handleFirestoreError(error, 'Error updating vehicle');
   }
+}
 
   // Eliminar con verificación robusta
   async deleteVehicle(id: string): Promise<void> {
