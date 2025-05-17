@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { VehicleService } from '../../services/vehicle.service';
 import { Vehicle, VehicleCreate } from '../../models/vehicle.model';
 import * as bootstrap from 'bootstrap';
-import { ToastrService } from 'ngx-toastr';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-vehicles',
@@ -18,7 +18,6 @@ export class VehiclesComponent implements AfterViewInit {
   @ViewChild('vehicleModal') modal!: ElementRef;
   
   private vehicleService = inject(VehicleService);
-  private toastr = inject(ToastrService);
   private modalInstance?: bootstrap.Modal;
 
   vehicles$ = this.vehicleService.getAllVehicles();
@@ -46,7 +45,12 @@ export class VehiclesComponent implements AfterViewInit {
 
   async saveVehicle() {
     if (!this.vehicleForm.valid) {
-      this.toastr.warning('Por favor complete todos los campos requeridos');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formulario incompleto',
+        text: 'Por favor complete todos los campos requeridos',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
     
@@ -56,17 +60,34 @@ export class VehiclesComponent implements AfterViewInit {
 
       if (this.isEditing && this.newVehicle.id) {
         await this.vehicleService.updateVehicle(this.newVehicle.id, vehicleData);
-        this.toastr.success('Vehículo actualizado correctamente');
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Actualizado!',
+          text: 'Vehículo actualizado correctamente',
+          timer: 2000,
+          showConfirmButton: false
+        });
       } else {
         await this.vehicleService.createVehicle(vehicleData);
-        this.toastr.success('Vehículo creado correctamente');
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Creado!',
+          text: 'Vehículo creado correctamente',
+          timer: 2000,
+          showConfirmButton: false
+        });
       }
 
       this.modalInstance?.hide();
       this.resetForm();
     } catch (error) {
       console.error('Error guardando vehículo:', error);
-      this.toastr.error('Error al guardar el vehículo');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error al guardar el vehículo',
+        confirmButtonColor: '#d33'
+      });
     } finally {
       this.isSaving = false;
     }
@@ -75,26 +96,81 @@ export class VehiclesComponent implements AfterViewInit {
   async deleteVehicle(id: string) {
     if (!id) return;
     
-    const confirmed = await this.showDeleteConfirmation();
-    if (!confirmed) return;
+    const { isConfirmed } = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: "¡No podrás revertir esta acción!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (!isConfirmed) return;
     
     this.isDeleting = id;
     try {
       await this.vehicleService.deleteVehicle(id);
-      this.toastr.success('Vehículo eliminado correctamente');
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Eliminado!',
+        text: 'Vehículo eliminado correctamente',
+        timer: 2000,
+        showConfirmButton: false
+      });
     } catch (error) {
       console.error('Error eliminando vehículo:', error);
-      this.toastr.error('Error al eliminar el vehículo');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error al eliminar el vehículo',
+        confirmButtonColor: '#d33'
+      });
     } finally {
       this.isDeleting = null;
     }
   }
 
-  private async showDeleteConfirmation(): Promise<boolean> {
-    return new Promise((resolve) => {
-      // Puedes implementar un modal de confirmación más elegante aquí
-      const confirmed = confirm('¿Estás seguro de eliminar este vehículo?');
-      resolve(confirmed);
+  showVehicleDetails(vehicle: Vehicle) {
+    Swal.fire({
+      title: `Detalles del Vehículo - ${vehicle.plate}`,
+      html: `
+        <div class="container text-start">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card mb-3">
+                <div class="card-header bg-light">
+                  <h6 class="mb-0">Información Básica</h6>
+                </div>
+                <div class="card-body">
+                  <p><strong><i class="bi bi-tag"></i> Marca:</strong> ${vehicle.brand}</p>
+                  <p><strong><i class="bi bi-box-seam"></i> Modelo:</strong> ${vehicle.model}</p>
+                  <p><strong><i class="bi bi-calendar"></i> Año:</strong> ${vehicle.year}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header bg-light">
+                  <h6 class="mb-0">Detalles Adicionales</h6>
+                </div>
+                <div class="card-body">
+                  <p><strong><i class="bi bi-fuel-pump"></i> Combustible:</strong> ${vehicle.fuelType}</p>
+                  <p><strong><i class="bi bi-person"></i> Propietario:</strong> ${vehicle.owner}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      icon: 'info',
+      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'Cerrar',
+      width: '700px',
+      customClass: {
+        popup: 'vehicle-details-popup'
+      }
     });
   }
 
