@@ -1,3 +1,4 @@
+// Utilidades de Angular para definir el componente y manipular el DOM
 import { Component, inject, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -13,27 +14,31 @@ import Swal from 'sweetalert2';
   templateUrl: './vehicles.component.html',
   styleUrls: ['./vehicles.component.css']
 })
+// Define el componente Angular como standalone y sus metadatos
+
 export class VehiclesComponent implements AfterViewInit {
-  @ViewChild('vehicleForm') vehicleForm!: NgForm;
-  @ViewChild('vehicleModal') modal!: ElementRef;
-  
-  private vehicleService = inject(VehicleService);
+  @ViewChild('vehicleForm') vehicleForm!: NgForm; // Formulario en la plantilla HTML
+  @ViewChild('vehicleModal') modal!: ElementRef; // Elemento modal en el DOM
+
+  private vehicleService = inject(VehicleService); // Inyección del servicio de vehículos
   private modalInstance?: bootstrap.Modal;
 
-  vehicles$ = this.vehicleService.getAllVehicles();
+  vehicles$ = this.vehicleService.getAllVehicles(); // Obtiene la lista de vehículos desde el servicio
   currentYear = new Date().getFullYear();
   fuelTypes = ['Gasolina', 'Diésel', 'Eléctrico', 'Híbrido'];
   isEditing = false;
   isSaving = false;
   isDeleting: string | null = null;
-  newVehicle: Partial<Vehicle> = this.initVehicle();
+  newVehicle: Partial<Vehicle> = this.initVehicle(); // Representa el vehículo a crear o editar
+  
 
   ngAfterViewInit() {
     this.modalInstance = new bootstrap.Modal(this.modal.nativeElement);
   }
 
-  openModal(vehicle?: Vehicle) {
+  openModal(vehicle?: Vehicle) { // Limpia el formulario
     this.resetForm();
+    
     if (vehicle) {
       this.isEditing = true;
       this.newVehicle = { ...vehicle };
@@ -43,7 +48,7 @@ export class VehiclesComponent implements AfterViewInit {
     this.modalInstance?.show();
   }
 
-  async saveVehicle() {
+  async saveVehicle() { // Verifica si el formulario es válido
     if (!this.vehicleForm.valid) {
       Swal.fire({
         icon: 'warning',
@@ -55,11 +60,13 @@ export class VehiclesComponent implements AfterViewInit {
     }
     
     this.isSaving = true;
-    try {
-      const vehicleData = this.prepareVehicleData();
 
+    try {
+      const vehicleData = this.prepareVehicleData(); // Prepara los datos para enviarlos
+      
       if (this.isEditing && this.newVehicle.id) {
-        await this.vehicleService.updateVehicle(this.newVehicle.id, vehicleData);
+        await this.vehicleService.updateVehicle(this.newVehicle.id, vehicleData); // Actualiza un vehículo existente
+        
         await Swal.fire({
           icon: 'success',
           title: '¡Actualizado!',
@@ -68,7 +75,8 @@ export class VehiclesComponent implements AfterViewInit {
           showConfirmButton: false
         });
       } else {
-        await this.vehicleService.createVehicle(vehicleData);
+        await this.vehicleService.createVehicle(vehicleData); // Crea un nuevo vehículo
+        
         await Swal.fire({
           icon: 'success',
           title: '¡Creado!',
@@ -81,7 +89,8 @@ export class VehiclesComponent implements AfterViewInit {
       this.modalInstance?.hide();
       this.resetForm();
     } catch (error) {
-      console.error('Error guardando vehículo:', error);
+      console.error('Error guardando vehículo:', error); // Muestra mensaje de error si algo falla
+      
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -94,9 +103,9 @@ export class VehiclesComponent implements AfterViewInit {
   }
 
   async deleteVehicle(id: string) {
-    if (!id) return;
-    
-    const { isConfirmed } = await Swal.fire({
+    if (!id) return; // Verifica si el ID es válido
+
+    const { isConfirmed } = await Swal.fire({ // Muestra confirmación antes de eliminar
       title: '¿Estás seguro?',
       text: "¡No podrás revertir esta acción!",
       icon: 'warning',
@@ -106,12 +115,14 @@ export class VehiclesComponent implements AfterViewInit {
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
     });
-
-    if (!isConfirmed) return;
     
-    this.isDeleting = id;
+    if (!isConfirmed) return;
+
+    this.isDeleting = id;  // Indica que se está eliminando este vehículo
+
     try {
-      await this.vehicleService.deleteVehicle(id);
+      await this.vehicleService.deleteVehicle(id); // Elimina el vehículo desde el servicio
+
       await Swal.fire({
         icon: 'success',
         title: '¡Eliminado!',
@@ -120,7 +131,8 @@ export class VehiclesComponent implements AfterViewInit {
         showConfirmButton: false
       });
     } catch (error) {
-      console.error('Error eliminando vehículo:', error);
+      console.error('Error eliminando vehículo:', error); // Muestra error si falla la eliminación
+      
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -128,13 +140,13 @@ export class VehiclesComponent implements AfterViewInit {
         confirmButtonColor: '#d33'
       });
     } finally {
-      this.isDeleting = null;
+      this.isDeleting = null; // Limpia el estado de eliminación
     }
   }
 
-  showVehicleDetails(vehicle: Vehicle) {
+  showVehicleDetails(vehicle: Vehicle) { // Muestra los detalles del vehículo
     Swal.fire({
-      title: `Detalles del Vehículo - ${vehicle.plate}`,
+      title: `Detalles del Vehículo - ${vehicle.plate}`, 
       html: `
         <div class="container text-start">
           <div class="row">
@@ -174,7 +186,7 @@ export class VehiclesComponent implements AfterViewInit {
     });
   }
 
-  private initVehicle(): Partial<Vehicle> {
+  private initVehicle(): Partial<Vehicle> { // Inicializa los campos de un nuevo vehículo con valores por defecto
     return {
       plate: '',
       brand: '',
@@ -185,7 +197,7 @@ export class VehiclesComponent implements AfterViewInit {
     };
   }
 
-  private prepareVehicleData(): VehicleCreate {
+  private prepareVehicleData(): VehicleCreate { // Prepara y asegura que los campos obligatorios tengan valores válidos
     return {
       plate: this.newVehicle.plate || '',
       brand: this.newVehicle.brand || '',
@@ -196,11 +208,13 @@ export class VehiclesComponent implements AfterViewInit {
     };
   }
 
-  private resetForm() {
+  private resetForm() { // Resetea el formulario si está definido
     if (this.vehicleForm) {
       this.vehicleForm.resetForm();
     }
-    this.newVehicle = this.initVehicle();
-    this.isEditing = false;
+
+    this.newVehicle = this.initVehicle(); // Reinicia los valores del vehículo
+
+    this.isEditing = false; // Desactiva el modo edición
   }
 }
