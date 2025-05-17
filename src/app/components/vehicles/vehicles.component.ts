@@ -1,11 +1,10 @@
-import { 
-  Component, inject, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef 
-} from '@angular/core';
+import { Component, inject, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { VehicleService } from '../../services/vehicle.service';
 import { Vehicle, VehicleCreate } from '../../models/vehicle.model';
 import * as bootstrap from 'bootstrap';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-vehicles',
@@ -19,10 +18,9 @@ export class VehiclesComponent implements AfterViewInit {
   @ViewChild('vehicleModal') modal!: ElementRef;
   
   private vehicleService = inject(VehicleService);
-  private cdr = inject(ChangeDetectorRef);
+  private toastr = inject(ToastrService);
   private modalInstance?: bootstrap.Modal;
 
-  // Datos y estado
   vehicles$ = this.vehicleService.getAllVehicles();
   currentYear = new Date().getFullYear();
   fuelTypes = ['Gasolina', 'Diésel', 'Eléctrico', 'Híbrido'];
@@ -40,12 +38,17 @@ export class VehiclesComponent implements AfterViewInit {
     if (vehicle) {
       this.isEditing = true;
       this.newVehicle = { ...vehicle };
+    } else {
+      this.isEditing = false;
     }
     this.modalInstance?.show();
   }
 
   async saveVehicle() {
-    if (!this.vehicleForm.valid) return;
+    if (!this.vehicleForm.valid) {
+      this.toastr.warning('Por favor complete todos los campos requeridos');
+      return;
+    }
     
     this.isSaving = true;
     try {
@@ -53,63 +56,74 @@ export class VehiclesComponent implements AfterViewInit {
 
       if (this.isEditing && this.newVehicle.id) {
         await this.vehicleService.updateVehicle(this.newVehicle.id, vehicleData);
+        this.toastr.success('Vehículo actualizado correctamente');
       } else {
         await this.vehicleService.createVehicle(vehicleData);
+        this.toastr.success('Vehículo creado correctamente');
       }
 
       this.modalInstance?.hide();
       this.resetForm();
-      this.cdr.detectChanges();
     } catch (error) {
       console.error('Error guardando vehículo:', error);
-      alert('Error al guardar. Verifica la consola para detalles.');
+      this.toastr.error('Error al guardar el vehículo');
     } finally {
       this.isSaving = false;
     }
   }
 
   async deleteVehicle(id: string) {
-    if (!id || !confirm('¿Estás seguro de eliminar este vehículo?')) return;
+    if (!id) return;
+    
+    const confirmed = await this.showDeleteConfirmation();
+    if (!confirmed) return;
     
     this.isDeleting = id;
     try {
       await this.vehicleService.deleteVehicle(id);
-      this.cdr.detectChanges();
+      this.toastr.success('Vehículo eliminado correctamente');
     } catch (error) {
       console.error('Error eliminando vehículo:', error);
-      alert('Error al eliminar. Verifica la consola para detalles.');
+      this.toastr.error('Error al eliminar el vehículo');
     } finally {
       this.isDeleting = null;
     }
   }
 
+  private async showDeleteConfirmation(): Promise<boolean> {
+    return new Promise((resolve) => {
+      // Puedes implementar un modal de confirmación más elegante aquí
+      const confirmed = confirm('¿Estás seguro de eliminar este vehículo?');
+      resolve(confirmed);
+    });
+  }
+
   private initVehicle(): Partial<Vehicle> {
     return {
+      plate: '',
+      brand: '',
+      model: '',
       year: this.currentYear,
-      fuelType: 'Gasolina'
+      fuelType: 'Gasolina',
+      owner: ''
     };
   }
 
   private prepareVehicleData(): VehicleCreate {
-    const requiredFields = ['plate', 'brand', 'model', 'year', 'fuelType', 'owner'];
-    const missingFields = requiredFields.filter(field => !this.newVehicle[field as keyof Vehicle]);
-
-    if (missingFields.length > 0) {
-      throw new Error(`Campos requeridos faltantes: ${missingFields.join(', ')}`);
-    }
-
     return {
-      plate: this.newVehicle.plate!,
-      brand: this.newVehicle.brand!,
-      model: this.newVehicle.model!,
-      year: this.newVehicle.year!,
-      fuelType: this.newVehicle.fuelType!,
-      owner: this.newVehicle.owner!
+      plate: this.newVehicle.plate || '',
+      brand: this.newVehicle.brand || '',
+      model: this.newVehicle.model || '',
+      year: this.newVehicle.year || this.currentYear,
+      fuelType: this.newVehicle.fuelType || 'Gasolina',
+      owner: this.newVehicle.owner || ''
     };
   }
 
   private resetForm() {
-    this.vehicleForm.resetForm();
+    if (this.vehicleForm) {
+      this.vehicleForm.resetForm();
+    }
     this.newVehicle = this.initVehicle();
     this.isEditing = false;
   }

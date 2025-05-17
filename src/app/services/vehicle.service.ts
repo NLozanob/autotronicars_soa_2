@@ -10,14 +10,18 @@ import { Timestamp } from '@angular/fire/firestore';
 @Injectable({ providedIn: 'root' })
 export class VehicleService {
   private firestore = inject(Firestore);
-  private vehiclesCollection = collection(this.firestore, 'vehicles');
+  
+  // Método mejorado para obtener la colección con conversión a Query
+  private get vehiclesQuery() {
+    return query(collection(this.firestore, 'vehicles'));
+  }
 
   // Crear vehículo optimizado
   async createVehicle(vehicle: VehicleCreate): Promise<string> {
     try {
-      const docRef = await addDoc(this.vehiclesCollection, {
+      const docRef = await addDoc(collection(this.firestore, 'vehicles'), {
         ...vehicle,
-        createdAt: Timestamp.now(), // Usar Timestamp nativo
+        createdAt: Timestamp.now(),
         updatedAt: Timestamp.now()
       });
       return docRef.id;
@@ -26,11 +30,11 @@ export class VehicleService {
     }
   }
 
-  // Obtener vehículos con conversión segura
+  // Obtener vehículos con conversión segura (versión corregida)
   getAllVehicles(): Observable<Vehicle[]> {
-    return collectionData(this.vehiclesCollection, { idField: 'id' }).pipe(
+    return collectionData(this.vehiclesQuery, { idField: 'id' }).pipe(
       map(data => data.map(d => this.parseFirestoreDocument(d))),
-      catchError(error =>
+      catchError(error => 
         throwError(() => this.handleFirestoreError(error, 'Error loading vehicles'))
       )
     );
@@ -43,7 +47,7 @@ export class VehicleService {
     try {
       await updateDoc(doc(this.firestore, 'vehicles', id), {
         ...this.sanitizeUpdateData(data),
-        updatedAt: Timestamp.now() // Actualizar timestamp
+        updatedAt: Timestamp.now()
       });
     } catch (error) {
       throw this.handleFirestoreError(error, 'Error updating vehicle');

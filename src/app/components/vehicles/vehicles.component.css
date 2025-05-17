@@ -28,3 +28,14 @@
   font-weight: 500;
   margin-bottom: 0.5rem;
 }
+
+.invalid-feedback {
+  display: block;
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.spinner-border {
+  vertical-align: middle;
+}
