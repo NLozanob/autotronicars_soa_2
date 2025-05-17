@@ -1,0 +1,221 @@
+/* SIDEBAR */
+.sidebar {
+  background: #1a1a1a;
+  width: 250px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  padding: 1rem;
+  color: white;
+  box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
+.sidebar-header {
+  padding: 1rem 0;
+  border-bottom: 1px solid #333;
+}
+
+.sidebar-logo {
+  width: 180px;
+  height: auto;
+  object-fit: contain;
+}
+
+.sidebar-title {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.sidebar-link {
+  color: #a0a0a0;
+  text-decoration: none;
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+  background: #2d2d2d;
+  color: white;
+  transform: translateX(5px);
+}
+
+.sidebar-link.active {
+  background: #2d2d2d;
+  color: white;
+  position: relative;
+}
+
+.sidebar-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background: #b30000;
+}
+
+/* Unificar tamaño y alineación de todos los iconos, sidebar y topbar */
+.bi,
+.topbar__user-avatar,
+.topbar__logout svg,
+.notifications svg,
+.menu-toggle {
+  font-size: 1.5rem !important; /* Igual tamaño para todos */
+  width: 24px;                  /* Ancho uniforme */
+  height: 24px;                 /* Alto uniforme */
+  line-height: 24px;
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* MAIN CONTENT */
+.main-content {
+  margin-left: 250px;
+  min-height: 100vh;
+  background: #f8f9fa;
+  transition: margin-left 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content.expanded {
+  margin-left: 0 !important;
+}
+
+.content-wrapper {
+  padding: 2rem;
+  flex: 1;
+}
+
+/* TOPBAR */
+.topbar {
+  background: #ffffff;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.topbar__left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #333;
+}
+
+.menu-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+.menu-toggle:hover {
+  background: #f0f0f0;
+}
+
+.topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.notifications {
+  position: relative;
+  cursor: pointer;
+}
+
+.topbar__notification-badge {
+  background: #b30000;
+  color: white;
+  font-size: 0.75rem;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  top: -6px;
+  right: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}
+
+.topbar__user-avatar {
+  color: #555;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.topbar__user-avatar:hover {
+  color: #0d6efd;
+}
+
+.topbar__logout {
+  color: #555;
+  transition: all 0.3s;
+  padding: 5px;
+  border-radius: 5px;
+}
+.topbar__logout:hover {
+  color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    box-shadow: none;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  .sidebar-link span {
+    display: none;
+  }
+
+  .bi,
+  .topbar__user-avatar,
+  .topbar__logout svg,
+  .notifications svg,
+  .menu-toggle {
+    font-size: 1.5rem !important;
+    width: 24px;
+    height: 24px;
+  }
+}

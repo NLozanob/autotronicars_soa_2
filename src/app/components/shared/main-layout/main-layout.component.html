@@ -1,0 +1,47 @@
+<!-- src/app/components/shared/main-layout/main-layout.component.html -->
+<div class="sidebar" [class.collapsed]="isSidebarCollapsed">
+  <div class="sidebar-header">
+    <h2 class="sidebar-title">
+      <img src="/images/logo.png" alt="Logo AutotroniCars" class="sidebar-logo" />
+    </h2>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a routerLink="/dashboard" class="sidebar-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <i class="bi bi-speedometer2"></i>
+      <span>Dashboard</span>
+    </a>
+    <a routerLink="/vehicles" class="sidebar-link" routerLinkActive="active">
+      <i class="bi bi-car-front-fill"></i>
+      <span>Vehículos</span>
+    </a>
+  </nav>
+</div>
+
+<div class="main-content" [class.expanded]="isSidebarCollapsed">
+  <nav class="topbar">
+    <div class="topbar__left">
+      <button class="menu-toggle" (click)="toggleSidebar()" aria-label="Alternar menú lateral" title="Mostrar/ocultar menú">
+        <i class="bi bi-list"></i>
+      </button>
+      <h2 class="page-title">{{ currentPageTitle }}</h2>
+    </div>
+
+    <div class="topbar__right">
+      <div class="notifications position-relative">
+        <i class="bi bi-bell fs-5"></i>
+        <span class="topbar__notification-badge position-absolute">3</span>
+      </div>
+
+      <i class="bi bi-person-circle topbar__user-avatar"></i>
+
+      <a href="#" class="topbar__logout" title="Cerrar sesión">
+        <i class="bi bi-box-arrow-right fs-5"></i>
+      </a>
+    </div>
+  </nav>
+
+  <div class="content-wrapper">
+    <router-outlet></router-outlet>
+  </div>
+</div>

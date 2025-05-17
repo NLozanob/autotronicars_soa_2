@@ -1,136 +1,72 @@
- <!-- Page Wrapper -->
- <div id="wrapper">
-
-    <!-- Sidebar -->
-    <ul class="navbar-nav bg-gradient-danger sidebar sidebar-dark accordion" id="accordionSidebar">
-
-        <!-- Sidebar - Brand -->
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-            <div class="sidebar-brand-icon rotate-n-15">
-                <i class="fas fa-laugh-wink"></i>
-            </div>
-            <div class="sidebar-brand-text mx-3">Autotronicars</div>
-        </a>        
-
-        <!-- Dividr -->
-        <hr class="sidebar-divider d-none d-md-block">
-
-    </ul>
-
-    <!-- Content Wrapper -->
-    <div id="content-wrapper" class="d-flex flex-column">
-
-        <!-- Main Content -->
-        <div id="content">
-
-            <!-- Topbar -->
-            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-
-                <!-- Sidebar Toggle (Topbar) -->
-                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                    <i class="fa fa-bars"></i>
-                </button>
-
-                <!-- Topbar Search -->
-                <form
-                    class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                    <div class="input-group">
-                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
-                            aria-label="Search" aria-describedby="basic-addon2">
-                        <div class="input-group-append">
-                            <button class="btn btn-danger" type="button">
-                                <i class="fas fa-search fa-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                </form>
-
-                <!-- Topbar Navbar -->
-                <ul class="navbar-nav ml-auto">
-
-                    <div class="topbar-divider d-none d-sm-block"></div>
-
-                    <!-- Nav Item - User Information -->
-                    <li class="nav-item dropdown no-arrow">
-                        <a class="nav-link dropdown-toggle" href="src\app\components\welcome\welcome.component.html" id="userDropdown" role="button">
-                            <i class="fa fa-sign-out" [style]="{'font-size': '30px', 'color': '#e74a3b'}" title="Logout"></i>
-                        </a>                          
-                    </li>
-
-                </ul>
-
-            </nav>
-            <!-- End of Topbar -->
-
-            <!-- Begin Page Content -->
-            <div class="container-fluid">                
-
-                <!-- Content Row -->
-                <div class="row">
-
-                    
-                </div>
-
-            </div>
-            <!-- /.container-fluid -->
-
-        </div>
-        <!-- End of Main Content -->
-
-        <!-- Footer -->
-        <footer class="sticky-footer bg-white">
-            <div class="container my-auto">
-                <div class="copyright text-center my-auto">
-                    <span>Copyright &copy; NLB & DAVR</span>
-                </div>
-            </div>
-        </footer>
-        <!-- End of Footer -->
-
+<div class="dashboard-container">
+  <!-- Encabezado -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h2 class="dashboard-title">
+        <i class="bi bi-speedometer2"></i> Panel de Control
+      </h2>
+      <p class="dashboard-subtitle">Resumen operacional</p>
     </div>
-    <!-- End of Content Wrapper -->
-
-</div>
-<!-- End of Page Wrapper -->
-
-<!-- Scroll to Top Button-->
-<a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-</a>
-
-<!-- Logout Modal-->
-<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <a class="btn btn-danger" href="login.html">Logout</a>
-            </div>
-        </div>
+    <div class="header-actions">
+      <div class="current-date">
+        <i class="bi bi-calendar3"></i>
+        {{ getCurrentDate() }}
+      </div>
     </div>
+  </div>
+
+  <!-- Tarjetas de estadísticas -->
+  <div class="stats-grid">
+    <div class="stat-card bg-red">
+      <div class="stat-header">
+        <h3><i class="bi bi-car-front"></i> Vehículos Registrados</h3>
+        <div class="stat-badge warning">+{{ stats.vehiclesChange }}%</div>
+      </div>
+      <div class="stat-value">{{ stats.totalVehicles }}</div>
+      <div class="stat-trend">Últimos 30 días</div>
+    </div>
+    
+    <div class="stat-card bg-blue">
+      <div class="stat-header">
+        <h3><i class="bi bi-tools"></i> Mantenimientos Activos</h3>
+        <div class="stat-badge danger">-{{ stats.maintenanceChange }}%</div>
+      </div>
+      <div class="stat-value">{{ stats.activeMaintenance }}</div>
+      <div class="stat-trend">vs mes anterior</div>
+    </div>
+    
+    <div class="stat-card bg-green">
+      <div class="stat-header">
+        <h3><i class="bi bi-people"></i> Clientes Recientes</h3>
+        <div class="stat-badge success">+{{ stats.clientsChange }}%</div>
+      </div>
+      <div class="stat-value">{{ stats.recentClients }}</div>
+      <div class="stat-trend">Últimos 7 días</div>
+    </div>
+  </div>
+
+  <!-- Listado de vehículos -->
+  <div class="recent-vehicles">
+    <div class="section-header">
+      <h3><i class="bi bi-clock-history"></i> Últimos Registros</h3>
+      <button class="view-all">
+        Ver todos <i class="bi bi-arrow-right"></i>
+      </button>
+    </div>
+    <div class="vehicle-list">
+      <div class="vehicle-item" *ngFor="let vehicle of vehicles">
+        <div class="vehicle-plate">{{ vehicle.plate }}</div>
+        <div class="vehicle-info">
+          <span class="vehicle-model">{{ vehicle.brand }} {{ vehicle.model }}</span>
+          <div class="vehicle-details">
+            <span class="vehicle-year"><i class="bi bi-calendar"></i> {{ vehicle.year }}</span>
+            <span class="vehicle-fuel"><i class="bi bi-fuel-pump"></i> {{ vehicle.fuel }}</span>
+          </div>
+        </div>
+        <div class="vehicle-status">
+          <i class="bi bi-circle-fill"></i> Activo
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-
-<!-- Bootstrap core JavaScript-->
-<script src="vendor/jquery/jquery.min.js"></script>
-<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-<!-- Core plugin JavaScript-->
-<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-<!-- Custom scripts for all pages-->
-<script src="js/sb-admin-2.min.js"></script>
-
-<!-- Page level plugins -->
-<script src="vendor/chart.js/Chart.min.js"></script>
-
-<!-- Page level custom scripts -->
-<script src="js/demo/chart-area-demo.js"></script>
-<script src="js/demo/chart-pie-demo.js"></script>

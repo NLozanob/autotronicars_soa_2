@@ -1,0 +1,134 @@
+<div class="container-fluid p-4">
+  <!-- Encabezado -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Gestión de Vehículos</h2>
+    <button class="btn btn-red" (click)="openModal()">
+      <i class="bi bi-plus-lg me-2"></i>Nuevo Vehículo
+    </button>
+  </div>
+
+  <!-- Modal -->
+  <div #vehicleModal class="modal fade" tabindex="-1" aria-labelledby="vehicleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            {{ isEditing ? 'Editar Vehículo' : 'Nuevo Vehículo' }}
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <form (submit)="saveVehicle()" #vehicleForm="ngForm">
+          <div class="modal-body">
+            <div class="row g-3">
+              <!-- Placa -->
+              <div class="col-md-6">
+                <label class="form-label">Placa</label>
+                <input type="text" class="form-control" 
+                       [(ngModel)]="newVehicle.plate" name="plate" required>
+              </div>
+
+              <!-- Marca -->
+              <div class="col-md-6">
+                <label class="form-label">Marca</label>
+                <input type="text" class="form-control" 
+                       [(ngModel)]="newVehicle.brand" name="brand" required>
+              </div>
+
+              <!-- Modelo -->
+              <div class="col-md-6">
+                <label class="form-label">Modelo</label>
+                <input type="text" class="form-control" 
+                       [(ngModel)]="newVehicle.model" name="model" required>
+              </div>
+
+              <!-- Año -->
+              <div class="col-md-6">
+                <label class="form-label">Año</label>
+                <input type="number" class="form-control" 
+                       [(ngModel)]="newVehicle.year" name="year" 
+                       min="1900" [max]="currentYear" required>
+                <small class="text-muted">Entre 1900 y {{ currentYear }}</small>
+              </div>
+
+              <!-- Combustible -->
+              <div class="col-md-6">
+                <label class="form-label">Combustible</label>
+                <select class="form-select" [(ngModel)]="newVehicle.fuelType" name="fuelType" required>
+                  <option *ngFor="let type of fuelTypes" [value]="type">{{ type }}</option>
+                </select>
+              </div>
+
+              <!-- Propietario -->
+              <div class="col-md-6">
+                <label class="form-label">Propietario</label>
+                <input type="text" class="form-control" 
+                       [(ngModel)]="newVehicle.owner" name="owner" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-red" [disabled]="isSaving">
+              @if (isSaving) {
+                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+              }
+              {{ isEditing ? 'Actualizar' : 'Guardar' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-responsive bg-white rounded-3 shadow-sm">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Placa</th>
+          <th>Marca</th>
+          <th>Modelo</th>
+          <th>Año</th>
+          <th>Combustible</th>
+          <th>Propietario</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (vehicle of vehicles$ | async; track vehicle?.id) {
+          <tr>
+            <td>{{ vehicle.plate }}</td>
+            <td>{{ vehicle.brand }}</td>
+            <td>{{ vehicle.model }}</td>
+            <td>{{ vehicle.year }}</td>
+            <td>{{ vehicle.fuelType }}</td>
+            <td>{{ vehicle.owner }}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-info me-2" 
+                      (click)="showVehicleDetails(vehicle)"
+                      [disabled]="isDeleting">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-primary me-2" 
+                      (click)="openModal(vehicle)"
+                      [disabled]="isDeleting">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" 
+                      (click)="deleteVehicle(vehicle.id!)"
+                      [disabled]="isDeleting === vehicle.id">
+                @if (isDeleting === vehicle.id) {
+                  <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                } @else {
+                  <i class="bi bi-trash"></i>
+                }
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

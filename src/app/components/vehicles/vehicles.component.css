@@ -1,0 +1,76 @@
+.btn-red {
+  background-color: #dc3545;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-red:hover {
+  background-color: #bb2d3b;
+  color: white;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.modal-content {
+  border: none;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.invalid-feedback {
+  display: block;
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.spinner-border {
+  vertical-align: middle;
+}
+
+/* Estilos para el popup de detalles del vehículo */
+.vehicle-details-popup {
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.vehicle-details-popup .swal2-title {
+  color: #333;
+  font-size: 1.5rem;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 20px;
+}
+
+.vehicle-details-popup .card {
+  border: none;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-bottom: 15px;
+}
+
+.vehicle-details-popup .card-header {
+  font-weight: 600;
+  background-color: #f8f9fa !important;
+  border-bottom: 1px solid #eee;
+}
+
+.vehicle-details-popup .card-body p {
+  margin-bottom: 0.5rem;
+}
+
+.vehicle-details-popup .bi {
+  margin-right: 8px;
+  color: #6c757d;
+}
