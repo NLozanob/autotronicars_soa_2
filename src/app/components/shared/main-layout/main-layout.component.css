@@ -80,9 +80,9 @@
 .topbar__logout svg,
 .notifications svg,
 .menu-toggle {
-  font-size: 1.5rem !important; /* Igual tamaño para todos */
-  width: 24px;                  /* Ancho uniforme */
-  height: 24px;                 /* Alto uniforme */
+  font-size: 1.5rem !important;
+  width: 24px;
+  height: 24px;
   line-height: 24px;
   vertical-align: middle;
   display: inline-flex;

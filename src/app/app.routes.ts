@@ -23,6 +23,10 @@ export const routes: Routes = [
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'vehicles', component: VehiclesComponent },
+      {
+        path: 'user-log',
+        loadComponent: () => import('./components/user-log-viewer/user-log-viewer.component').then(m => m.UserLogViewerComponent)
+      },
     ]
   },
 
