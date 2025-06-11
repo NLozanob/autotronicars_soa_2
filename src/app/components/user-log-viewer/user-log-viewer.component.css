@@ -1,0 +1,123 @@
+/* Simple styles for the user log viewer */
+.user-log-viewer {
+  max-width: 1200px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  padding: 2.5rem 2rem 2rem 2rem;
+}
+.user-log-viewer h2 {
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+.filters input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.sort-buttons {
+  margin-bottom: 1.2rem;
+  display: flex;
+  gap: 1rem;
+}
+.sort-buttons button {
+  background: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.3rem;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.sort-buttons button:hover {
+  background: #1769aa;
+}
+.user-log-viewer table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.7rem;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+}
+.user-log-viewer th,
+.user-log-viewer td {
+  padding: 0.9rem 1.2rem;
+  text-align: left;
+  vertical-align: middle;
+}
+.user-log-viewer th {
+  background: #f8f9fa;
+  font-weight: 700;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+.user-log-viewer td {
+  border-bottom: 1px solid #eaeaea;
+  color: #222;
+  font-size: 1.01rem;
+}
+.user-log-viewer tbody tr {
+  transition: background 0.18s;
+}
+.user-log-viewer .table-hover tbody tr:hover {
+  background-color: #f1f7ff;
+}
+.user-log-viewer td img {
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+}
+button {
+  outline: none;
+}
+.btn-red {
+  background-color: #dc3545;
+  color: white;
+  transition: all 0.3s ease;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-red:hover {
+  background-color: #bb2d3b;
+  color: white;
+}
+.spinner-border {
+  vertical-align: middle;
+}
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+.invalid-feedback {
+  display: block;
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+@media (max-width: 900px) {
+  .user-log-viewer {
+    padding: 1rem 0.2rem;
+  }
+  .user-log-viewer th, .user-log-viewer td {
+    padding: 0.6rem 0.5rem;
+    font-size: 0.95rem;
+  }
+  .filters, .sort-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

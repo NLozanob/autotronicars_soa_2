@@ -7,7 +7,7 @@ import { Timestamp } from '@angular/fire/firestore';
 
 @Injectable({ providedIn: 'root' }) //Indica que este servicio está disponible a nivel de toda la aplicación
 export class VehicleService {
-  private firestore = inject(Firestore); //Inyección del servicio Firestore de Firebase
+  private firestore = inject(Firestore); // Servicio Firestore de Firebase
   
   // Retorna una consulta (query) sobre la colección 'vehicles' en Firestore.
   private get vehiclesQuery() {

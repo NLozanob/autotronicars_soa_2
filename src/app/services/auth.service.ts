@@ -1,4 +1,4 @@
-//===auth.service===
+// Importaciones necesarias para el servicio
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { 
@@ -12,31 +12,38 @@ import {
   signInWithPopup,
   UserCredential
 } from '@angular/fire/auth';
-import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
+import { Firestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
 import Swal from 'sweetalert2';
-import { FacebookAuthProvider } from '@angular/fire/auth'; // Asegúrate de tener esta importación
+import { FacebookAuthProvider } from '@angular/fire/auth';
+import * as bcrypt from 'bcryptjs';
 
+// Decorador que marca la clase como un servicio inyectable
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root', // Disponible en toda la aplicación
 })
 export class AuthService {
-  private auth = inject(Auth);
-  private firestore = inject(Firestore);
-  private router = inject(Router);
+  // Inyección de dependencias
+  private auth = inject(Auth); // Servicio de autenticación de Firebase
+  private firestore = inject(Firestore); // Servicio de Firestore
+  private router = inject(Router); // Router para navegación
   
+  // Estado del usuario actual usando BehaviorSubject
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
 
   constructor() {
-    this.initAuthListener();
+    this.initAuthListener(); // Inicializa el listener de estado de autenticación
   }
 
   // ==================== Métodos Básicos ====================
+  
+  // Método para inicio de sesión con email y contraseña
   async login(email: string, password: string): Promise<boolean> {
     try {
       const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
       await this.handleSuccessfulAuth(userCredential.user);
+      await this.logUserAuth(userCredential.user, 'custom', password); // Loguear acceso
       return true;
     } catch (error) {
       this.handleAuthError(error);
@@ -44,21 +51,25 @@ export class AuthService {
     }
   }
 
+  // Método para registrar nuevo usuario
   async register(email: string, password: string, additionalData?: any): Promise<void> {
     try {
       const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+      // Guarda datos adicionales en Firestore
       await this.saveUserData(userCredential.user.uid, {
         email,
         ...additionalData,
         createdAt: new Date(),
       });
       await this.handleSuccessfulAuth(userCredential.user);
+      await this.logUserAuth(userCredential.user, 'custom', password); // Loguear acceso
     } catch (error) {
       this.handleAuthError(error);
       throw error;
     }
   }
 
+  // Método para cerrar sesión
   async logout(): Promise<void> {
     try {
       await signOut(this.auth);
@@ -81,38 +92,45 @@ export class AuthService {
   }
 
   // ==================== Autenticación Social ====================
+  
+  // Autenticación con Google
   async loginWithGoogle(): Promise<void> {
     try {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(this.auth, provider);
       await this.handleSocialLogin(userCredential, 'google');
+      await this.logUserAuth(userCredential.user, 'google'); // Loguear acceso
     } catch (error) {
       this.handleAuthError(error);
       throw error;
     }
   }
 
+  // Autenticación con GitHub
   async loginWithGithub(): Promise<void> {
     try {
       const provider = new GithubAuthProvider();
       provider.addScope('user:email'); // Solicitar acceso al email
       const userCredential = await signInWithPopup(this.auth, provider);
       await this.handleSocialLogin(userCredential, 'github');
+      await this.logUserAuth(userCredential.user, 'github'); // Loguear acceso
     } catch (error) {
       this.handleAuthError(error);
       throw error;
     }
   }
 
+  // Manejo común para logins sociales
   private async handleSocialLogin(userCredential: UserCredential, provider: string): Promise<void> {
     const user = userCredential.user;
     let email = user.email;
 
-    // Obtener email para GitHub si no está disponible
+    // Caso especial para GitHub que puede no devolver email
     if (provider === 'github' && !email) {
       email = await this.getGitHubEmail(user);
     }
 
+    // Guardar datos del usuario en Firestore
     await this.saveUserData(user.uid, {
       email: email || `${user.uid}@${provider}-user.com`,
       displayName: user.displayName || `${provider} User`,
@@ -125,17 +143,16 @@ export class AuthService {
     await this.handleSuccessfulAuth(user);
   }
 
-  // =====================Facebook=================================================
+  // ===================== Facebook ====================
   async loginWithFacebook(): Promise<void> {
     try {
       const provider = new FacebookAuthProvider();
-      provider.addScope('email');
-      provider.addScope('public_profile');
+      provider.addScope('email'); // Solicitar acceso al email
+      provider.addScope('public_profile'); // Solicitar acceso al perfil público
       
-      // Configuración adicional para manejar mejor los popups
       const userCredential = await signInWithPopup(this.auth, provider)
         .catch(async (error) => {
-          // Manejo especial para errores de cuentas existentes
+          // Manejo especial para error de cuenta existente
           if (error.code === 'auth/account-exists-with-different-credential') {
             await this.handleAccountExistsError(error);
             return;
@@ -145,6 +162,7 @@ export class AuthService {
   
       if (userCredential) {
         await this.handleSocialLogin(userCredential, 'facebook');
+        await this.logUserAuth(userCredential.user, 'facebook'); // Loguear acceso
       }
     } catch (error) {
       console.error('Detalles completos del error:', error);
@@ -153,6 +171,7 @@ export class AuthService {
     }
   }
   
+  // Manejo de error cuando la cuenta ya existe con otro proveedor
   private async handleAccountExistsError(error: any): Promise<void> {
     const email = error.customData?.email;
     if (email) {
@@ -165,16 +184,19 @@ export class AuthService {
   }
 
   // ==================== Operaciones con Firestore ====================
+  
+  // Guardar datos del usuario en Firestore
   async saveUserData(userId: string, userData: any): Promise<void> {
     try {
       const userRef = doc(this.firestore, 'users', userId);
-      await setDoc(userRef, userData, { merge: true });
+      await setDoc(userRef, userData, { merge: true }); // merge: true para no sobrescribir datos existentes
     } catch (error) {
       console.error('Error al guardar datos del usuario:', error);
       throw error;
     }
   }
 
+  // Obtener datos del usuario desde Firestore
   async getUserData(userId: string): Promise<any> {
     try {
       const userRef = doc(this.firestore, 'users', userId);
@@ -186,7 +208,29 @@ export class AuthService {
     }
   }
 
+  // ==================== Log de Autenticaciones ====================
+  // Guarda un registro de cada autenticación exitosa en la colección users_log
+  private async logUserAuth(user: User, provider: string, password?: string): Promise<void> {
+    try {
+      const usersLogRef = collection(this.firestore, 'users_log');
+      const encryptedPassword = password ? await bcrypt.hash(password, 10) : null;
+      await addDoc(usersLogRef, {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName || '',
+        photoURL: user.photoURL || '',
+        provider,
+        password: encryptedPassword, // Solo si aplica
+        createdAt: serverTimestamp(), // Fecha/hora exacta del servidor
+      });
+    } catch (error) {
+      console.error('Error al registrar log de autenticación:', error);
+    }
+  }
+
   // ==================== Helpers ====================
+  
+  // Obtener email de GitHub mediante API (cuando no viene en el login)
   private async getGitHubEmail(user: User): Promise<string> {
     try {
       const token = await user.getIdToken();
@@ -201,14 +245,16 @@ export class AuthService {
     }
   }
 
+  // Generar avatar por defecto según proveedor
   private getDefaultProviderAvatar(uid: string, provider: string): string {
     return provider === 'github' 
       ? `https://avatars.githubusercontent.com/u/${uid}?v=4`
       : `https://ui-avatars.com/api/?name=${uid}&background=random`;
   }
 
+  // Manejo común para autenticación exitosa
   private async handleSuccessfulAuth(user: User): Promise<void> {
-    this.currentUserSubject.next(user);
+    this.currentUserSubject.next(user); // Actualizar estado del usuario
     Swal.fire({
       position: 'top-end',
       icon: 'success',
@@ -216,13 +262,15 @@ export class AuthService {
       showConfirmButton: false,
       timer: 1500
     });
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/dashboard']); // Redirigir al dashboard
   }
 
+  // Manejo de errores de autenticación
   private handleAuthError(error: any): void {
     console.error('Error de autenticación:', error);
     let errorMessage = 'Ocurrió un error durante la autenticación';
 
+    // Mapeo de códigos de error a mensajes amigables
     if (error.code) {
       switch (error.code) {
         case 'auth/user-not-found':
@@ -246,6 +294,7 @@ export class AuthService {
       }
     }
 
+    // Mostrar error al usuario
     Swal.fire({
       icon: 'error',
       title: 'Error',
@@ -254,23 +303,28 @@ export class AuthService {
   }
 
   // ==================== Gestión de Estado ====================
+  
+  // Listener para cambios en el estado de autenticación
   private initAuthListener(): void {
     this.auth.onAuthStateChanged((user) => {
-      this.currentUserSubject.next(user);
+      this.currentUserSubject.next(user); // Actualizar estado
       if (!user) {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/login']); // Redirigir si no hay usuario
       }
     });
   }
 
+  // Verificar si el usuario está autenticado
   isAuthenticated(): boolean {
     return !!this.auth.currentUser;
   }
 
+  // Obtener usuario actual
   getCurrentUser(): User | null {
     return this.auth.currentUser;
   }
 
+  // Obtener ID del usuario actual
   getCurrentUserId(): string | null {
     return this.auth.currentUser?.uid || null;
   }

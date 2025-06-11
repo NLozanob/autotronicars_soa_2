@@ -1,0 +1,70 @@
+<div class="user-log-viewer">
+  <!-- Título principal del componente -->
+  <h2>Historial de Accesos de Usuarios</h2>
+  
+  <!-- Sección de filtros -->
+  <div class="filters">
+    <!-- Input de búsqueda por texto -->
+    <input type="text" 
+           [formControl]="searchControl" 
+           placeholder="Buscar por nombre, email o UID" />
+    
+    <!-- Input de filtro por fecha -->
+    <label for="fechaFiltro">Filtrar por fecha:</label>
+    <input id="fechaFiltro" type="date" [formControl]="dateControl" />
+    
+    <!-- Botón para limpiar todos los filtros -->
+    <button (click)="clearFilters()">Limpiar filtros</button>
+  </div>
+  
+  <!-- Sección de botones para ordenamiento -->
+  <div class="sort-buttons">
+    <!-- Botón para ordenar por fecha (muestra flecha indicando dirección) -->
+    <button (click)="setSort('createdAt')">
+      Ordenar por Fecha {{sortField==='createdAt' ? (sortDirection==='asc'?'↑':'↓') : ''}}
+    </button>
+    
+    <!-- Botón para ordenar por nombre (muestra flecha indicando dirección) -->
+    <button (click)="setSort('displayName')">
+      Ordenar por Nombre {{sortField==='displayName' ? (sortDirection==='asc'?'↑':'↓') : ''}}
+    </button>
+    
+    <!-- Botón para ordenar por email (muestra flecha indicando dirección) -->
+    <button (click)="setSort('email')">
+      Ordenar por Email {{sortField==='email' ? (sortDirection==='asc'?'↑':'↓') : ''}}
+    </button>
+  </div>
+  
+  <!-- Mensaje de carga -->
+  <div *ngIf="loading">Cargando...</div>
+  
+  <!-- Tabla que muestra los logs filtrados -->
+  <table *ngIf="!loading && filteredLogs.length">
+    <thead>
+      <tr>
+        <th>UID</th>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Proveedor</th>
+        <th>Fecha de Ingreso</th>
+        <th>Avatar</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Iteración sobre los logs filtrados -->
+      <tr *ngFor="let log of filteredLogs">
+        <td>{{log.uid}}</td>
+        <td>{{log.displayName}}</td>
+        <td>{{log.email}}</td>
+        <td>{{log.provider}}</td>
+        <!-- Formateo de fecha con pipe date -->
+        <td>{{log.createdAt.toDate() | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+        <!-- Muestra avatar si existe photoURL -->
+        <td><img *ngIf="log.photoURL" [src]="log.photoURL" alt="avatar" width="32" height="32"></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <!-- Mensaje cuando no hay resultados -->
+  <div *ngIf="!loading && !filteredLogs.length">No hay registros para mostrar.</div>
+</div>
