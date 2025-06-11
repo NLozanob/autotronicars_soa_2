@@ -12,10 +12,11 @@ import {
   signInWithPopup,
   UserCredential
 } from '@angular/fire/auth';
-import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
+import { Firestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
 import Swal from 'sweetalert2';
 import { FacebookAuthProvider } from '@angular/fire/auth';
+import * as bcrypt from 'bcryptjs';
 
 // Decorador que marca la clase como un servicio inyectable
 @Injectable({
@@ -42,6 +43,7 @@ export class AuthService {
     try {
       const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
       await this.handleSuccessfulAuth(userCredential.user);
+      await this.logUserAuth(userCredential.user, 'custom', password); // Loguear acceso
       return true;
     } catch (error) {
       this.handleAuthError(error);
@@ -60,6 +62,7 @@ export class AuthService {
         createdAt: new Date(),
       });
       await this.handleSuccessfulAuth(userCredential.user);
+      await this.logUserAuth(userCredential.user, 'custom', password); // Loguear acceso
     } catch (error) {
       this.handleAuthError(error);
       throw error;
@@ -96,6 +99,7 @@ export class AuthService {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(this.auth, provider);
       await this.handleSocialLogin(userCredential, 'google');
+      await this.logUserAuth(userCredential.user, 'google'); // Loguear acceso
     } catch (error) {
       this.handleAuthError(error);
       throw error;
@@ -109,6 +113,7 @@ export class AuthService {
       provider.addScope('user:email'); // Solicitar acceso al email
       const userCredential = await signInWithPopup(this.auth, provider);
       await this.handleSocialLogin(userCredential, 'github');
+      await this.logUserAuth(userCredential.user, 'github'); // Loguear acceso
     } catch (error) {
       this.handleAuthError(error);
       throw error;
@@ -157,6 +162,7 @@ export class AuthService {
   
       if (userCredential) {
         await this.handleSocialLogin(userCredential, 'facebook');
+        await this.logUserAuth(userCredential.user, 'facebook'); // Loguear acceso
       }
     } catch (error) {
       console.error('Detalles completos del error:', error);
@@ -199,6 +205,26 @@ export class AuthService {
     } catch (error) {
       console.error('Error al obtener datos del usuario:', error);
       throw error;
+    }
+  }
+
+  // ==================== Log de Autenticaciones ====================
+  // Guarda un registro de cada autenticación exitosa en la colección users_log
+  private async logUserAuth(user: User, provider: string, password?: string): Promise<void> {
+    try {
+      const usersLogRef = collection(this.firestore, 'users_log');
+      const encryptedPassword = password ? await bcrypt.hash(password, 10) : null;
+      await addDoc(usersLogRef, {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName || '',
+        photoURL: user.photoURL || '',
+        provider,
+        password: encryptedPassword, // Solo si aplica
+        createdAt: serverTimestamp(), // Fecha/hora exacta del servidor
+      });
+    } catch (error) {
+      console.error('Error al registrar log de autenticación:', error);
     }
   }
 
