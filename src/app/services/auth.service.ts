@@ -111,9 +111,20 @@ export class AuthService {
     try {
       const provider = new GithubAuthProvider();
       provider.addScope('user:email'); // Solicitar acceso al email
-      const userCredential = await signInWithPopup(this.auth, provider);
-      await this.handleSocialLogin(userCredential, 'github');
-      await this.logUserAuth(userCredential.user, 'github'); // Loguear acceso
+      const userCredential = await signInWithPopup(this.auth, provider)
+        .catch(async (error) => {
+          // Manejo especial para error de cuenta existente
+          if (error.code === 'auth/account-exists-with-different-credential') {
+            await this.handleAccountExistsError(error);
+            return;
+          }
+          throw error;
+        });
+
+      if (userCredential) {
+        await this.handleSocialLogin(userCredential, 'github');
+        await this.logUserAuth(userCredential.user, 'github'); // Loguear acceso
+      }
     } catch (error) {
       this.handleAuthError(error);
       throw error;
